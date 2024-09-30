@@ -116,7 +116,7 @@ export class AppUpdate {
             return;
           }
           ctx.session.currentItem = subject;
-          await ctx.reply('Шо конкретно надо?', actionButtons());
+          await ctx.reply('Шо конкретно надо?', editButtons());
           break;
         }
         case 'add': {
