@@ -89,6 +89,7 @@ export class AppUpdate {
     ctx.session.type = undefined;
     ctx.session.editType = undefined;
     if (!ctx.session.currentItem) {
+      await ctx.reply('Нет такого', editButtons());
       return;
     }
     if (ctx.session.currentItem.labs_done <= 0) {
@@ -111,38 +112,47 @@ export class AppUpdate {
         case 'edit': {
           const subject = await this.subjectService.findOneByName(message);
           if (!subject) {
-            await ctx.reply('Нет такого предмета', editButtons());
+            await ctx.reply('Нет такого предмета', actionButtons());
             return;
           }
           ctx.session.currentItem = subject;
-          await ctx.reply('Шо конкретно надо?', editButtons());
+          await ctx.reply('Шо конкретно надо?', actionButtons());
           break;
         }
         case 'add': {
           if (!message) {
-            await ctx.reply('Ты ничего не ввел', editButtons());
+            await ctx.reply('Ты ничего не ввел', actionButtons());
             return;
           }
           const [name, labs_done, labs_all] = message.split(' ');
-          if (!name || labs_done === undefined || labs_all === undefined) {
-            await ctx.reply('Не та структура, идиот', editButtons());
+          console.log;
+          if (
+            !name ||
+            labs_done === undefined ||
+            labs_all === undefined ||
+            isNaN(Number(labs_done)) ||
+            isNaN(Number(labs_all))
+          ) {
+            await ctx.reply('Не та структура, идиот', actionButtons());
             return;
           }
           if (+labs_done < 0 || +labs_all < 0) {
-            await ctx.reply('Такого не бывает', editButtons());
+            await ctx.reply('Такого не бывает', actionButtons());
             return;
           }
           await this.subjectService.createSubject({ name, labs_all: +labs_all, labs_done: +labs_done });
           await ctx.reply('Добавил с кайфом', actionButtons());
+          break;
         }
         case 'delete': {
           const deleteSubject = await this.subjectService.findOneByName(message);
           if (!deleteSubject) {
-            await ctx.reply('Нет такого предмета', editButtons());
+            await ctx.reply('Нет такого предмета', actionButtons());
             return;
           }
           await this.subjectService.deleteSubject(deleteSubject.id);
           await ctx.reply('Удалил с кайфом', actionButtons());
+          break;
         }
       }
     }
