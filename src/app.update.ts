@@ -32,7 +32,7 @@ export class AppUpdate {
   async addItem(ctx: TelegrafContext) {
     ctx.session.editType = undefined;
     ctx.session.type = 'add';
-    await ctx.reply(`Введите данные  для обновления через пробел в виде: Имя предмета - сдано лаб - всего лаб`);
+    await ctx.reply(`Введите данные  для добавления через пробел в виде: Имя предмета сдано_лаб всего_лаб`);
   }
   @Hears(mainActions.edit)
   async editItem(ctx: TelegrafContext) {

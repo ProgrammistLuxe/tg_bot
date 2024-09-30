@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  subjects-postgres:
+    image: postgres:15.1
+    container_name: subjects-postgres
+    ports:
+      - 5432:5432
+    restart: always
+    env_file:
+      - ./sandbox-postgres-prod.env
+    networks:
+      - main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d subjects_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes: 
+      - subjects_db:/var/lib/postgresql/data    
+  subjects-api:
+    build: ./
+    container_name: subjects-api 
+    restart: always
+    networks:
+      - main
+    depends_on:
+      subjects-postgres:
+        condition: service_healthy
+    ports:
+      - 3030:3030
+  pgAdmin:
+    container_name: pgadmin 
+    image: dpage/pgadmin4
+    restart: always
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - main
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'kovaldai68@mail.ru'
+      PGADMIN_DEFAULT_PASSWORD: Vanya345
+    ports:
+      - 5480:80
+
+networks:
+  main:
+
+volumes: 
+  subjects_db:
+  pgadmin:
