@@ -69,6 +69,12 @@ export class AppUpdate {
     ctx.session.editType = 'changeVariant';
     await ctx.reply(`Введите новый вариант: `);
   }
+  @Hears(editActions.changeLabAmount)
+  async changeLabAmount(ctx: TelegrafContext) {
+    ctx.session.type = undefined;
+    ctx.session.editType = 'changeLabAmount';
+    await ctx.reply(`Введите общее кол-во лаб: `);
+  }
   @Hears(editActions.addLab)
   async addLab(ctx: TelegrafContext) {
     ctx.session.type = undefined;
@@ -138,7 +144,7 @@ export class AppUpdate {
             await ctx.reply('Не та структура, идиот', actionButtons());
             return;
           }
-          if (+labs_done < 0 || +labs_all < 0 || Number(variant) < 0) {
+          if (+labs_done < 0 || +labs_all < 0 || Number(variant) < 0 || +labs_all < +labs_done) {
             await ctx.reply('Такого не бывает', actionButtons());
             return;
           }
@@ -178,10 +184,25 @@ export class AppUpdate {
         }
         case 'changeVariant': {
           if (!ctx.session.currentItem) {
-            await ctx.reply('Нет такого предмета', editButtons());
+            await ctx.reply('Нет такого предмета', actionButtons());
             return;
           }
           ctx.session.currentItem.variant = message;
+          this.subjectService.updateSubject(ctx.session.currentItem.id, ctx.session.currentItem);
+          ctx.session.currentItem = undefined;
+          await ctx.reply('Обновил с кайфом', actionButtons());
+          break;
+        }
+        case 'changeLabAmount': {
+          if (!ctx.session.currentItem) {
+            await ctx.reply('Нет такого предмета', actionButtons());
+            return;
+          }
+          if (!message || isNaN(Number(message)) || Number(message) < ctx.session.currentItem.labs_done) {
+            await ctx.reply('Введите корректное значение', editButtons());
+            return;
+          }
+          ctx.session.currentItem.labs_all = Number(message);
           this.subjectService.updateSubject(ctx.session.currentItem.id, ctx.session.currentItem);
           ctx.session.currentItem = undefined;
           await ctx.reply('Обновил с кайфом', actionButtons());
