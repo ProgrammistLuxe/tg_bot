@@ -32,7 +32,9 @@ export class AppUpdate {
   async addItem(ctx: TelegrafContext) {
     ctx.session.editType = undefined;
     ctx.session.type = 'add';
-    await ctx.reply(`Введите данные  для добавления через пробел в виде: Имя предмета сдано_лаб всего_лаб`);
+    await ctx.reply(
+      `Введите данные  для добавления через пробел в виде: Название_предмета вариант(если нет то пиши '-') сдано_лаб всего_лаб`,
+    );
   }
   @Hears(mainActions.edit)
   async editItem(ctx: TelegrafContext) {
@@ -60,6 +62,12 @@ export class AppUpdate {
     ctx.session.type = undefined;
     ctx.session.editType = 'changeName';
     await ctx.reply(`Введите новое название: `);
+  }
+  @Hears(editActions.changeVariant)
+  async changeVariant(ctx: TelegrafContext) {
+    ctx.session.type = undefined;
+    ctx.session.editType = 'changeVariant';
+    await ctx.reply(`Введите новый вариант: `);
   }
   @Hears(editActions.addLab)
   async addLab(ctx: TelegrafContext) {
@@ -124,23 +132,22 @@ export class AppUpdate {
             await ctx.reply('Ты ничего не ввел', actionButtons());
             return;
           }
-          const [name, labs_done, labs_all] = message.split(' ');
-          console.log;
-          if (
-            !name ||
-            labs_done === undefined ||
-            labs_all === undefined ||
-            isNaN(Number(labs_done)) ||
-            isNaN(Number(labs_all))
-          ) {
+          const [name, variant, labs_done, labs_all] = message.split(' ');
+
+          if (!name || isNaN(Number(labs_done)) || isNaN(Number(labs_all)) || !variant) {
             await ctx.reply('Не та структура, идиот', actionButtons());
             return;
           }
-          if (+labs_done < 0 || +labs_all < 0) {
+          if (+labs_done < 0 || +labs_all < 0 || Number(variant) < 0) {
             await ctx.reply('Такого не бывает', actionButtons());
             return;
           }
-          await this.subjectService.createSubject({ name, labs_all: +labs_all, labs_done: +labs_done });
+          await this.subjectService.createSubject({
+            name,
+            variant: variant,
+            labs_all: +labs_all,
+            labs_done: +labs_done,
+          });
           await ctx.reply('Добавил с кайфом', actionButtons());
           break;
         }
@@ -169,7 +176,17 @@ export class AppUpdate {
           await ctx.reply('Обновил с кайфом', actionButtons());
           break;
         }
-
+        case 'changeVariant': {
+          if (!ctx.session.currentItem) {
+            await ctx.reply('Нет такого предмета', editButtons());
+            return;
+          }
+          ctx.session.currentItem.variant = message;
+          this.subjectService.updateSubject(ctx.session.currentItem.id, ctx.session.currentItem);
+          ctx.session.currentItem = undefined;
+          await ctx.reply('Обновил с кайфом', actionButtons());
+          break;
+        }
         default: {
           ctx.session.currentItem = undefined;
           await ctx.reply('А зачем было меня дергать?', actionButtons());

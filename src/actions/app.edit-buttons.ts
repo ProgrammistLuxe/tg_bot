@@ -5,6 +5,7 @@ export function editButtons() {
     [
       Markup.button.text(editActions.exit),
       Markup.button.text(editActions.changeName),
+      Markup.button.text(editActions.changeVariant),
       Markup.button.text(editActions.addLab),
       Markup.button.text(editActions.removeLab),
     ],

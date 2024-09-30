@@ -6,6 +6,7 @@ export const mainActions = {
 };
 export const editActions = {
   changeName: 'Обновить название',
+  changeVariant: 'Обновить вариант',
   exit: 'Не хочу обновлять',
   addLab: 'Сдал лабу 💪',
   removeLab: 'Минуснуть сданную лабу 😥',

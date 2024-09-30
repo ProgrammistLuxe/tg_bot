@@ -1,10 +1,11 @@
+import { Subject } from '@api/subject/entities/subject.entity';
+import { editActions, mainActions } from '@consts/actions';
 import { Context } from 'telegraf';
-import { ISubject } from './subject.model';
 
 export interface TelegrafContext extends Context {
   session: {
-    type?: 'add' | 'edit' | 'delete';
-    editType?: 'exit' | 'changeName' | 'addLab' | 'removeLab';
-    currentItem?: ISubject;
+    type?: keyof typeof mainActions;
+    editType?: keyof typeof editActions;
+    currentItem?: Subject;
   };
 }

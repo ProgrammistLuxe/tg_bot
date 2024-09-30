@@ -13,6 +13,10 @@ export class Subject {
   name: string;
   @ApiProperty()
   @IsNotEmpty({ message: 'Поле не может быть пустым' })
+  @Column({ type: 'varchar', length: 256, default: '-' })
+  variant: string;
+  @ApiProperty()
+  @IsNotEmpty({ message: 'Поле не может быть пустым' })
   @Column({ type: 'integer' })
   labs_done: number;
   @ApiProperty()
